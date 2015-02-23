@@ -1,11 +1,13 @@
 # {{ ansible_managed }}
 
 output {
-
-{% for key,value in logstash_outputs.iteritems() %}
- {{ key }} {
-   {{ value }}
- }
-
+{% for key, value in logstash_outputs.items() recursive %}
+{% if value is mapping %}
+{{ key }} {
+{{ loop(value.items()) | indent(2 * loop.depth, true) }}
+}
+{% else %}
+{{ key }} => {{ '"' + value + '"' if value is string else value  }}
+{% endif %}
 {% endfor %}
 }

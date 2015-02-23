@@ -2,11 +2,14 @@
 
 {% if logstash_filters is defined %}
 filter {
-{% for key,value in logstash_filters.iteritems() %}
- {{ key }} {
-   {{ value }}
- }
-
+{% for key, value in logstash_filters.items() recursive %}
+{% if value is mapping %}
+{{ key }} {
+{{ loop(value.items()) | indent(2 * loop.depth, true) }}
+}
+{% else %}
+{{ key }} => {{ '"' + value + '"' if value is string else value }}
+{% endif %}
 {% endfor %}
 }
 {% endif %}
